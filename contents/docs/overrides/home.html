@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block extrahead %}
+  {% set title = config.site_name %}
+  {% if page and page.title and not page.is_homepage %}
+    {% set title = config.site_name ~ " - " ~ page.title | striptags %}
+  {% endif %}
+  <link rel="stylesheet" href="{{ 'overrides/home.css' | url }}">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+{% endblock %}
+{% block tabs %}
+  {{ super() }}
+  <!-- Automatic Slideshow Images -->
+  <div class="mySlides w3-display-container w3-center">
+    <img src="TRAPPIST1.png" style="width:100%">
+    <div class="w3-display-bottommiddle w3-container w3-text-white w3-padding-32 w3-hide-small">
+      <h3>Los Angeles</h3>
+      <p><b>We had the best time playing at Venice Beach!</b></p>   
+    </div>
+  </div>
+{% endblock %}
+{% block content %}{% endblock %}
+{% block footer %}{% endblock %}

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>A-Frame Solar System Lab</title>
+        <script src="https://aframe.io/releases/1.1.0/aframe.min.js"></script>
+        <script src="https://unpkg.com/aframe-orbit-controls@1.3.0/dist/aframe-orbit-controls.min.js"></script>
+        <script src="https://cdn.rawgit.com/matthewbryancurtis/aframe-star-system-component/db4f1030/index.js"></script>
+        <script src="https://rawcdn.githack.com/DougReeder/superframe/8e7e80d18198a3b78692fe269395d7b8153154f2/components/look-at/dist/aframe-look-at-component.min.js"></script>
+        <script src="https://rawgit.com/protyze/aframe-curve-component/master/dist/aframe-curve-component.min.js"></script>
+        <script src="https://rawgit.com/protyze/aframe-alongpath-component/master/dist/aframe-alongpath-component.min.js"></script>
+    </head>
+    <body>
+        <a-scene>
+            <a-assets>
+                <a-asset-item id="trappist1a" src="../design/output/trappist1a.glb"></a-asset-item>                
+                <a-asset-item id="trappist1b" src="../design/output/trappist1b.glb"></a-asset-item>                
+                <a-asset-item id="trappist1c" src="../design/output/trappist1c.glb"></a-asset-item>                
+                <a-asset-item id="trappist1d" src="../design/output/trappist1d.glb"></a-asset-item>                
+                <a-asset-item id="trappist1e" src="../design/output/trappist1e.glb"></a-asset-item>                
+                <a-asset-item id="trappist1f" src="../design/output/trappist1f.glb"></a-asset-item>   
+                <img id="glow" src="glow.png">  
+            </a-assets>
+
+            <a-curve id="cameramovement" closed="true">
+                <a-curve-point position="0 15 80"></a-curve-point>
+                <a-curve-point position="-20 0 -20"></a-curve-point>
+                <a-curve-point position="20 0 -20"></a-curve-point>
+                <a-curve-point position="0 15 80"></a-curve-point>
+            </a-curve>
+            <a-draw-curve curveref="#cameramovement" material="shader: line; color: gray;"></a-draw-curve>
+            
+            <a-entity position="5 0 80" rotation="0 0 0" alongpath="curve: #cameramovement;dur: 20000;rotate: true;loop:true;">
+                <a-camera id="player" rotation="0 0 0" position="0 0 0" fov="5000" wasd-controls look-controls>
+                </a-camera>
+            </a-entity>
+
+            <a-sky color="#222222"></a-sky>
+            <a-entity star-system="count: 1000;"></a-entity>
+
+            <a-entity id="trappist1a" gltf-model="#trappist1a" glow="c:0.3;">
+                <a-image width="30" height="30" src="#glow" look-at="[camera]" color="red" material="transparent: true; opacity: 1.0; alphaTest: 0.01;"
+                animation__pulse="property: material.opacity; from: 0.9; to: 0.8; dur: 170; loop: true;"></a-image>
+            </a-entity>
+
+            <a-entity light="type: ambient; intensity: .6"></a-entity>
+            <!-- 
+                dur=Umlaufzeit (Tage) * 100000
+                AU          149 597 870 700 = 149 6
+                Erdradius         6 378 137 = 0.6
+
+                Umlaufzeit      1.51 Tage   = 151000
+                Orbital Radius  0.0115 AU  = 17,204+12
+            -->
+            <a-entity rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 151000">
+                <a-entity gltf-model="#trappist1b" position="0 0 29.204"></a-entity>
+            </a-entity>
+            <!-- 
+                Umlaufzeit      2.42 Tage   = 242000
+                Orbital Radius  0.0158 AU   = 23,63+12
+            -->
+            <a-entity rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 242000">
+                <a-entity gltf-model="#trappist1c" position="0 0 35.6368"></a-entity>
+            </a-entity>
+            <!-- 
+                dur=Umlaufzeit (Tage) * 100000
+                AU          149 597 870 700 = 149 6
+                Erdradius         6 378 137 = 0.6
+
+                Umlaufzeit      4.05 Tage   = 405000
+                Orbital Radius  0.0223 AU  = 31,41
+            -->
+            <a-entity rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 405000">
+                <a-entity gltf-model="#trappist1d" position="0 0 45.3608"></a-entity>
+            </a-entity>
+            <!-- 
+                dur=Umlaufzeit (Tage) * 100000
+                AU          149 597 870 700 = 149 6
+                Erdradius         6 378 137 = 0.6
+
+                Umlaufzeit      6.10 Tage   = 151000
+                Orbital Radius  0.0293 AU   = 55.8328
+            -->
+            <a-entity rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 610000">
+                <a-entity gltf-model="#trappist1e" position="0 0 55.8328">
+                    <a-image width="3" height="3" src="#glow" look-at="[camera]" color="#111111" material="transparent: true; opacity: 1.0; alphaTest: 0.01;"></a-image>
+                    </a-entity>
+            </a-entity>
+            <!-- 
+                dur=Umlaufzeit (Tage) * 100000
+                AU          149 597 870 700 = 149 6
+                Erdradius         6 378 137 = 0.6
+
+                Umlaufzeit      9.21 Tage   = 921000
+                Orbital Radius  0.0385 AU   = 69,596
+            -->
+            <a-entity rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 921000">
+                <a-entity gltf-model="#trappist1f" position="0 0 69.596"></a-entity>
+            </a-entity>
+
+        </a-scene>
+    </body>
+</html>

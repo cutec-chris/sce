@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>A-Frame Solar System Lab</title>
+        <script src="https://aframe.io/releases/1.1.0/aframe.min.js"></script>
+        <script src="https://unpkg.com/aframe-orbit-controls@1.3.0/dist/aframe-orbit-controls.min.js"></script>
+        <script src="https://cdn.rawgit.com/matthewbryancurtis/aframe-star-system-component/db4f1030/index.js"></script>
+        <script src="../src/client/components/instanced-mesh.js"></script>
+        <script src="../src/client/components/gltf-part-draco.js"></script>
+    </head>
+    <body>
+        <a-scene stats>
+            <a-assets>
+                <a-asset-item id="sycia_asset" src="../design/output/sycia_body.glb"></a-asset-item>                
+                <a-asset-item id="sycia_panel_asset_base" src="../contents/sce-story/singlepanel.glb"></a-asset-item>    
+                <a-mixin id="sycia_panel_asset" scale="1 1 1" rotation="0 0 0" gltf-part="src: #sycia_panel_asset_base; part: Panel"></a-mixin>            
+                <a-asset-item id="sycia_ball_asset_base" src="../contents/sce-story/sycia_ball.glb"></a-asset-item>    
+                <a-mixin id="sycia_ball_asset" scale="1 1 1" rotation="0 0 0" gltf-part="src: #sycia_ball_asset_base; part: Sphere"></a-mixin>            
+            </a-assets>
+            
+            <a-entity camera look-controls orbit-controls="initialPosition: 2 3 5"></a-entity>
+            <a-entity light="type: ambient; intensity: .5"></a-entity>
+            <a-light type="point" intensity=".2" position="60 80 80"></a-light>
+
+            <a-sky color="#111111"></a-sky>
+            <a-entity star-system="count: 1000;"></a-entity>
+
+            <a-entity id="sycia" scale="0.01 0.01 0.01">
+                <a-entity gltf-model="#sycia_asset"></a-entity>
+                <a-entity id="sycia_balls" position="0 0 -41.5" mixin="sycia_ball_asset" instanced-mesh="inheritMat: false; frustumCulled: true; center: false; bottomAlign: false">
+                </a-entity>
+                <a-entity id="sycia_ropes">
+                </a-entity>
+            </a-entity>
+            <script>
+                SyciaB = document.getElementById('sycia_balls');
+                //Add Balls
+                var angle = 0.04;
+                var axis = new THREE.Vector3( 0, 0, 1 );
+                for (row=0;row<(157);row++) {
+                    for (line=0;line<31;line++) {
+                        var Elem = document.createElement("a-entity");
+                        SyciaB.appendChild(Elem);
+                        var vector = new THREE.Vector3( 0, 44.5, -(line*2) );
+                        vector.applyAxisAngle( axis, angle*row );
+                        Elem.object3D.position.set(vector.x,vector.y,vector.z);
+                    }
+                }
+                //Add Panels
+                Sycia = document.getElementById('sycia');
+                Ropes = document.getElementById('sycia_ropes');
+                actRotation = 0;
+                PanelCount = 1;
+                rowPos = 1;
+                rotValue = 0.5;
+                rotDist = (60.356*Math.tan(THREE.Math.degToRad(rotValue)))*5;
+                for (row=1;row<13;row++) {
+                    for (rot=0;rot<8;rot++) {
+                        var rotElem = document.createElement("a-entity");
+                        rotElem.setAttribute('mixin', 'sycia_panel_asset');
+                        rotElem.setAttribute('instanced-mesh','inheritMat: false; frustumCulled: true; center: false; bottomAlign: false');
+                        rotElem.setAttribute('rotation', {x: 0, y: 0, z: actRotation});
+                        Sycia.appendChild(rotElem);
+                        PanelPos = 0;
+                        var xPos;
+                        for (panel=0;panel<PanelCount;panel++) {
+                            actPanel = document.createElement("a-entity");
+                            xPos = 122.3+((rowPos-1)*60.356);
+                            if (row % 2 == 0) {
+                                actPanel.setAttribute('position', {x: xPos, 
+                                                                   y: (-(((rowPos-1)*50)/2)+(50*panel)), 
+                                                                   z: -(rotDist*rowPos)});
+                                actPanel.setAttribute('rotation', {x: 0, y: rotValue*rowPos, z: 180});
+                            } else {
+                                actPanel.setAttribute('position', {x: ((rowPos-1)*60.356), 
+                                                                   y: (-(((rowPos-1)*50)/2)+(50*panel)), 
+                                                                   z: -(rotDist*rowPos)});
+                                actPanel.setAttribute('rotation', {x: 0, y: (rotValue*rowPos), z: 0});
+                            }
+                            rotElem.appendChild(actPanel);
+                            PanelPos += 50;
+                            actRope = document.createElement("a-entity");
+                            actRope.setAttribute('line','start: 0 '+actPanel.object3D.position.x+' 0;end: 0 0 -480');
+                            actRope.setAttribute('rotation', {x: 0, y: 0, z: (rowPos+1)*(45)});
+                            Ropes.appendChild(actRope);
+                        }
+                        actRotation += 45;
+                    }
+                    if (row % 2 != 0) {
+                        PanelCount += 1;
+                        rowPos += 1;
+                    }
+                }
+            </script>
+        </a-scene>
+    </body>
+</html>

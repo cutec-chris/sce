@@ -1,0 +1,26 @@
+site_name: 2nd Chance Evoluton
+site_author: Christian Ulrich
+site_description: >-
+  Ein Interface zur Kommunikation mit Sycias Drohnen
+# Page tree
+nav:
+  - Home: index.md
+  - Wann:
+    - Verlauf: history.md
+    - Sycia: sycia.md
+theme:
+  name: material
+  custom_dir: docs/overrides 
+  palette:
+    primary: blue grey
+  language: de
+  icon:
+    logo: material/camera-control
+  features:
+    - navigation.tabs
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/solid/paper-plane
+      link: mailto:sge@chris.ullihome.de
+copyright: Copyright &copy; 2020 - 2021 C. Ulrich
