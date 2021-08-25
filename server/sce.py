@@ -1,6 +1,6 @@
-import goal
+import goal,pathlib
 class GameObject:
-    def __init__(self):
+    def __init__(self,Position):
         self.name = None
         self.blueprintPath = None
     def Hit(self,Type,SourceObject): return None,0 #returns List of Items (Loot) and Damage
@@ -10,18 +10,18 @@ class GameObject:
             #if Actions are clear
                 #replan Actions
 class Creature(GameObject):
-    def __init__(self):
-        super().__init__(self)
+    def __init__(self,Position):
+        super().__init__(self,Position)
         self.LastSeen = [] #List of last seen Objects
     def Move(self,Direction,Speed): pass
-    def Tick(self,Ticks):
+    def Tick(self,Ticks=1):
         #Calculate Movement
         #Add Objects seen and remove some of lastSeen objects
         super().Tick(self,Ticks) #execute Actions
 class Plant(Creature): pass
 class Dinos(Creature):
-    def __init__(self):
-        super().__init__(self)
+    def __init__(self,Position):
+        super().__init__(self,Position)
         self.fullStatsRaw = [None, None, None, None, None, None, None, None, None, None, None, None]
         self.immobilizedBy = []
         self.noGender = True
@@ -33,3 +33,11 @@ class Herbivore(Dinos): pass
 class Omnivore(Herbivore,Carnivore): pass
 class Player(GameObject): pass
 class Structures(GameObject): pass
+class World:
+    def __init__(self,Path):
+        self.Quadrants = [][][]
+        self.Path = pathlib.Path(Path)
+class Quadrant:
+    def __init__(self,Position):
+        self.Position = Position
+        self.Objects = []

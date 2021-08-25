@@ -1,3 +1,4 @@
+import goap
 #violent Tame
     #original: Torpur tame and force feed
     #new Idea: throw Food in non-Attack Range until it follows you
