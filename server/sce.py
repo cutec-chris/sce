@@ -1,17 +1,19 @@
-import goal,pathlib
+import goap,pathlib
 class GameObject:
     def __init__(self,Position):
         self.name = None
         self.blueprintPath = None
+        self.Position = Position
     def Hit(self,Type,SourceObject): return None,0 #returns List of Items (Loot) and Damage
     def Tick(self,TicksDone):
         #Execute actual Action
             #if Action is disturbed by some Event (Attack,Critical Food/Water,Action execution not possible anymore)
             #if Actions are clear
                 #replan Actions
+        pass
 class Creature(GameObject):
     def __init__(self,Position):
-        super().__init__(self,Position)
+        super().__init__(Position)
         self.LastSeen = [] #List of last seen Objects
     def Move(self,Direction,Speed): pass
     def Tick(self,Ticks=1):
@@ -21,7 +23,7 @@ class Creature(GameObject):
 class Plant(Creature): pass
 class Dinos(Creature):
     def __init__(self,Position):
-        super().__init__(self,Position)
+        super().__init__(Position)
         self.fullStatsRaw = [None, None, None, None, None, None, None, None, None, None, None, None]
         self.immobilizedBy = []
         self.noGender = True
@@ -35,7 +37,7 @@ class Player(GameObject): pass
 class Structures(GameObject): pass
 class World:
     def __init__(self,Path):
-        self.Quadrants = [][][]
+        self.Quadrants = []
         self.Path = pathlib.Path(Path)
 class Quadrant:
     def __init__(self,Position):

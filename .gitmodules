@@ -1,0 +1,6 @@
+[submodule "contents/trappist-1f"]
+	path = contents/trappist-1f
+	url = https://github.com/cutec-chris/sce-trappist-1f
+[submodule "contents/PrimaEarth"]
+	path = contents/PrimaEarth
+	url = https://github.com/cutec-chris/sce-PrimalEarth
