@@ -1,17 +1,5 @@
-import goap,pathlib
-class GameObject:
-    def __init__(self,Position):
-        self.name = None
-        self.blueprintPath = None
-        self.Position = Position
-    def Hit(self,Type,SourceObject): return None,0 #returns List of Items (Loot) and Damage
-    def Tick(self,TicksDone):
-        #Execute actual Action
-            #if Action is disturbed by some Event (Attack,Critical Food/Water,Action execution not possible anymore)
-            #if Actions are clear
-                #replan Actions
-        pass
-class Creature(GameObject):
+import goap,pathlib,sceworld
+class Creature(sceworld.GameObject):
     def __init__(self,Position):
         super().__init__(Position)
         self.LastSeen = [] #List of last seen Objects
@@ -30,15 +18,13 @@ class Dinos(Creature):
         self.colors = []
         self.taming = {'nonViolent': False, 'violent': False, 'tamingIneffectiveness': 8.333333, 'affinityNeeded0': 450, 'affinityIncreasePL': 22.5, 'foodConsumptionBase': 0.001543, 'foodConsumptionMult': 216.0294}
         self.TamedBaseHealthMultiplier = 1
-class Carnivore(Dinos): pass
-class Herbivore(Dinos): pass
-class Omnivore(Herbivore,Carnivore): pass
 class Player(GameObject): pass
 class Structures(GameObject): pass
 class World:
-    def __init__(self,Path):
+    def __init__(self,Path,Blueprint):
         self.Quadrants = []
         self.Path = pathlib.Path(Path)
+        self.Blueprint = pathlib.Path(Blueprint)
 class Quadrant:
     def __init__(self,Position):
         self.Position = Position
