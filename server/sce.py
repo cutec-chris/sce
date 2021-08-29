@@ -1,5 +1,6 @@
-import goap,pathlib,sceworld
-class Creature(sceworld.GameObject):
+import goap,pathlib
+from scebase import *
+class Creature(GameObject):
     def __init__(self,Position):
         super().__init__(Position)
         self.LastSeen = [] #List of last seen Objects
@@ -20,12 +21,3 @@ class Dinos(Creature):
         self.TamedBaseHealthMultiplier = 1
 class Player(GameObject): pass
 class Structures(GameObject): pass
-class World:
-    def __init__(self,Path,Blueprint):
-        self.Quadrants = []
-        self.Path = pathlib.Path(Path)
-        self.Blueprint = pathlib.Path(Blueprint)
-class Quadrant:
-    def __init__(self,Position):
-        self.Position = Position
-        self.Objects = []

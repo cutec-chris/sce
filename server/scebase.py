@@ -1,3 +1,4 @@
+import pathlib
 class GameObject:
     def __init__(self,Position):
         self.name = None
@@ -10,6 +11,17 @@ class GameObject:
             #if Actions are clear
                 #replan Actions
         pass
+class World:
+    def __init__(self,Path,Blueprint):
+        self.Quadrants = []
+        self.Path = pathlib.Path(Path)
+        if not self.Path.exists():
+            self.Path.mkdir(parents=True)
+        self.Blueprint = pathlib.Path(Blueprint)
+class Quadrant:
+    def __init__(self,Position):
+        self.Position = Position
+        self.Objects = []
 class Vector3:
     def __init__(self,x,y,z):
         self.x = x
