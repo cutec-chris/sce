@@ -1,4 +1,4 @@
-import bottle,json,logging,base64,random,time
+import bottle,json,logging,base64,random,time,pathlib
 app = bottle.Bottle()
 servers = []
 def sendrec(message,sock):
@@ -18,9 +18,12 @@ def sendrec(message,sock):
     return None    
 @app.route('/')
 @app.route('/index.html')
-def handle_index():
-    return 'Hello World!'
-@app.route('/<filepath>')
+@app.route('/client/<filepath>')
+def handle_index(filepath='index.html'):
+    basepath = str(pathlib.Path('/'.join(list(pathlib.Path(__file__).parts)[0:-2])) / 'client')
+    print(basepath)
+    return bottle.jinja2_template(filepath,template_lookup=[basepath])
+@app.route('/server/<filepath>')
 def handle_file(filepath):
     if len(servers) == 0:
         bottle.abort(502,'No servers avalible')
