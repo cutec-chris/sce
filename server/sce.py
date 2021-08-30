@@ -1,14 +1,5 @@
 import goap,pathlib
 from scebase import *
-class Creature(GameObject):
-    def __init__(self,Position):
-        super().__init__(Position)
-        self.LastSeen = [] #List of last seen Objects
-    def Move(self,Direction,Speed): pass
-    def Tick(self,Ticks=1):
-        #Calculate Movement
-        #Add Objects seen and remove some of lastSeen objects
-        super().Tick(self,Ticks) #execute Actions
 class Plant(Creature): pass
 class Dinos(Creature):
     def __init__(self,Position):

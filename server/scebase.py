@@ -11,6 +11,18 @@ class GameObject:
             #if Actions are clear
                 #replan Actions
         pass
+class AABBColide:
+    def Collide(self,other):
+        return False
+class Creature(GameObject,AABBColide):
+    def __init__(self,Position):
+        super().__init__(Position)
+        self.LastSeen = [] #List of last seen Objects
+    def Move(self,Direction,Speed): pass
+    def Tick(self,Ticks=1):
+        #Calculate Movement
+        #Add Objects seen and remove some of lastSeen objects
+        super().Tick(self,Ticks) #execute Actions
 class World:
     def __init__(self,Path,Blueprint):
         self.Quadrants = []
@@ -18,6 +30,10 @@ class World:
         if not self.Path.exists():
             self.Path.mkdir(parents=True)
         self.Blueprint = pathlib.Path(Blueprint)
+    def Spawn(self,Blueprint,Position):
+        return False
+    def SaveWorld(self):
+        return False
 class Quadrant:
     def __init__(self,Position):
         self.Position = Position
