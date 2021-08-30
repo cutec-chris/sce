@@ -21,7 +21,6 @@ def sendrec(message,sock):
 @app.route('/client/<filepath>')
 def handle_index(filepath='index.html'):
     basepath = str(pathlib.Path('/'.join(list(pathlib.Path(__file__).parts)[0:-2])) / 'client')
-    print(basepath)
     return bottle.jinja2_template(filepath,template_lookup=[basepath])
 @app.route('/server/<filepath>')
 def handle_file(filepath):
