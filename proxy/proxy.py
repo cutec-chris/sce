@@ -1,6 +1,15 @@
-import bottle,json,logging,base64,random,time,pathlib
+import bottle,json,logging,base64,random,time,pathlib,os
 app = bottle.Bottle()
 servers = []
+@app.route('/')
+@app.route('/index.html')
+@app.route('/client/<filepath>')
+def handle_index(filepath='index.html'):
+    basepath = str(pathlib.Path('/'.join(list(pathlib.Path(__file__).parts)[0:-2])) / 'client')
+    if os.path.splitext(filepath)[1][:4].lower() == '.htm':
+        return bottle.jinja2_template(filepath,template_lookup=[basepath])
+    else:
+        return bottle.static_file(filepath,basepath)
 def sendrec(message,sock):
     aId = int(random.random()*10000)
     message['id'] = aId
@@ -16,12 +25,6 @@ def sendrec(message,sock):
     except:
         pass
     return None    
-@app.route('/')
-@app.route('/index.html')
-@app.route('/client/<filepath>')
-def handle_index(filepath='index.html'):
-    basepath = str(pathlib.Path('/'.join(list(pathlib.Path(__file__).parts)[0:-2])) / 'client')
-    return bottle.jinja2_template(filepath,template_lookup=[basepath])
 @app.route('/server/<filepath>')
 def handle_file(filepath):
     if len(servers) == 0:
