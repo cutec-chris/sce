@@ -2,5 +2,5 @@
 	path = contents/trappist-1f
 	url = https://github.com/cutec-chris/sce-trappist-1f
 [submodule "contents/PrimaEarth"]
-	path = contents/PrimaEarth
+	path = contents/PrimalEarth
 	url = https://github.com/cutec-chris/sce-PrimalEarth

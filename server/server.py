@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 import asyncio,websockets,json,base64,importlib,argparse,logging
 def getFile(path):
-    return 'Hello World from '+path
+    if str(path).startswith('/world/'):
+        return 'Hello from World '+path
+    else:
+        return 'Hello World from '+path
 async def main():
     parser = argparse.ArgumentParser(description='Second Chance Evolution Server.')
     parser.add_argument('proxy', help='The proxy server')
     parser.add_argument('world', help='The directory contains the simulated world')
+    parser.add_argument('--savefiles', help='The directory contains the savefiles',default='./savefiles/$world')
     #parser.add_argument('--sum', dest='accumulate', action='store_const', const=sum, default=max, help='sum the integers (default: find the max)')
     args = parser.parse_args()
     #print(args.accumulate(args.integers))    
