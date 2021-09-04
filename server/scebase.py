@@ -24,12 +24,11 @@ class Creature(GameObject,AABBColide):
         #Add Objects seen and remove some of lastSeen objects
         super().Tick(self,Ticks) #execute Actions
 class World:
-    def __init__(self,Path,Blueprint):
+    def __init__(self,Path):
         self.Quadrants = []
         self.Path = pathlib.Path(Path)
         if not self.Path.exists():
             self.Path.mkdir(parents=True)
-        self.Blueprint = pathlib.Path(Blueprint)
     def Spawn(self,Blueprint,Position):
         return False
     def SaveWorld(self):
