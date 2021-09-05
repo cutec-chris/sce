@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-import asyncio,websockets,json,base64,importlib,importlib.util,argparse,logging,pathlib,sys
+import asyncio,websockets,json,base64,importlib,importlib.util,argparse,logging,pathlib,sys,os
+try:import watchdog.observers,watchdog.events
+except BaseException as e:logging.debug(str(e))
 def getFile(path):
     if str(path).startswith('/world/'):
         return 'Hello from World '+path
@@ -13,7 +15,7 @@ async def main():
     #parser.add_argument('--sum', dest='accumulate', action='store_const', const=sum, default=max, help='sum the integers (default: find the max)')
     args = parser.parse_args()
     #print(args.accumulate(args.integers))    
-    uri = args.proxy+'/serversocket'
+    uri = args.proxy+':8080/serversocket'
     logging.info('connecting to {}'.format(uri))
     try:
         async with websockets.connect(uri) as socket:
@@ -30,16 +32,37 @@ async def main():
             spec.loader.exec_module(w)
             World = w.World(str(args.savefiles).replace('$world',args.world))
             logging.info('server running')
-            while True:
-                umessage = await socket.recv()
-                message = json.loads(umessage)
-                if message['method'] == 'get':
-                    message['status'] = 200
-                    data = getFile(message['uri'])
-                    if type(data) is str:
-                        data = data.encode()
-                    message['data'] = base64.encodebytes(data).decode()
-                    await socket.send(json.dumps(message))
+            try:
+                path = pathlib.Path(__file__).parent.parent / 'contents'
+                class FileChanged(watchdog.events.FileSystemEventHandler):
+                    def on_any_event(self,  event):
+                        if os.path.splitext(event.src_path)[1]=='.py':
+                            logging.warning('%s canged, restarting...' % event.src_path)
+                            os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
+                            sys.exit(0)
+                event_handler = FileChanged()
+                observer = watchdog.observers.Observer()
+                observer.schedule(event_handler, path, recursive=True)
+                observer.start()
+            except BaseException as e: logging.warning('reloading disabled: '+str(e))
+            try:
+                while True:
+                    umessage = await socket.recv()
+                    message = json.loads(umessage)
+                    if message['method'] == 'get':
+                        message['status'] = 200
+                        data = getFile(message['uri'])
+                        if type(data) is str:
+                            data = data.encode()
+                        message['data'] = base64.encodebytes(data).decode()
+                        await socket.send(json.dumps(message))
+            except BaseException as e:
+                logging.error(str(e))
+            finally:
+                try:
+                    observer.stop()
+                    observer.join()
+                except: pass
     except BaseException as e: logging.error('Server connection failed. (%s)' % str(e))
 def ColoredOutput(log_level):
     def set_color(level, code):
