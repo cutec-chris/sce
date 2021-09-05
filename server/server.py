@@ -37,9 +37,14 @@ async def main():
                 class FileChanged(watchdog.events.FileSystemEventHandler):
                     def on_any_event(self,  event):
                         if os.path.splitext(event.src_path)[1]=='.py':
-                            logging.warning('%s canged, restarting...' % event.src_path)
-                            os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
-                            sys.exit(0)
+                            try:
+                                logging.warning('%s canged, restarting...' % event.src_path)
+                                exec = ' '.join([sys.executable, os.path.abspath(__file__), *sys.argv[1:]])
+                                print(exec)
+                                os.system(exec)
+                                sys.exit(0)
+                            except BaseException as e:
+                                logging.error('failed server restart: %s' % str(e))
                 event_handler = FileChanged()
                 observer = watchdog.observers.Observer()
                 observer.schedule(event_handler, path, recursive=True)
