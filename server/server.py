@@ -34,40 +34,17 @@ async def main():
             logging.info('server running')
             try:
                 path = pathlib.Path(__file__).parent.parent / 'contents'
-                class FileChanged(watchdog.events.FileSystemEventHandler):
-                    def on_any_event(self,  event):
-                        if os.path.splitext(event.src_path)[1]=='.py':
-                            try:
-                                logging.warning('%s canged, restarting...' % event.src_path)
-                                exec = ' '.join([sys.executable, os.path.abspath(__file__), *sys.argv[1:]])
-                                print(exec)
-                                os.system(exec)
-                                sys.exit(0)
-                            except BaseException as e:
-                                logging.error('failed server restart: %s' % str(e))
-                event_handler = FileChanged()
-                observer = watchdog.observers.Observer()
-                observer.schedule(event_handler, path, recursive=True)
-                observer.start()
             except BaseException as e: logging.warning('reloading disabled: '+str(e))
-            try:
-                while True:
-                    umessage = await socket.recv()
-                    message = json.loads(umessage)
-                    if message['method'] == 'get':
-                        message['status'] = 200
-                        data = getFile(message['uri'])
-                        if type(data) is str:
-                            data = data.encode()
-                        message['data'] = base64.encodebytes(data).decode()
-                        await socket.send(json.dumps(message))
-            except BaseException as e:
-                logging.error(str(e))
-            finally:
-                try:
-                    observer.stop()
-                    observer.join()
-                except: pass
+            while True:
+                umessage = await socket.recv()
+                message = json.loads(umessage)
+                if message['method'] == 'get':
+                    message['status'] = 200
+                    data = getFile(message['uri'])
+                    if type(data) is str:
+                        data = data.encode()
+                    message['data'] = base64.encodebytes(data).decode()
+                    await socket.send(json.dumps(message))
     except BaseException as e: logging.error('Server connection failed. (%s)' % str(e))
 def ColoredOutput(log_level):
     def set_color(level, code):
