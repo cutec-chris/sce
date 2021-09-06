@@ -62,8 +62,8 @@ async def Watchfiles():
         observer.stop()
         observer.join()
     exec_t = ' '.join([sys.executable, os.path.abspath(__file__), *sys.argv[1:],'&'])
-    print(exec_t)
-    os.system(exec_t)
+    #print(exec_t)
+    #os.system(exec_t)
     raise Exception('file changes')
 async def main():
     parser = argparse.ArgumentParser(description='Second Chance Evolution Server.')

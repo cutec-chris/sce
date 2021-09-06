@@ -1,6 +1,7 @@
 import bottle,json,logging,base64,random,time,pathlib,os
 app = bottle.Bottle()
 servers = []
+users = []
 @app.route('/')
 @app.route('/index.html')
 @app.route('/client/<filepath>')
@@ -25,6 +26,27 @@ def sendrec(message,sock):
     except:
         pass
     return None    
+@app.post('/login')
+def handle_login():
+    newUser = {
+            "user": bottle.request.forms.get('password'),
+            "password": bottle.request.forms.get('password'),
+            }
+    MinCnt = 999999
+    MinCntSerer = None
+    for server in servers:
+        if server.environ['users'] < MinCnt:
+            MinCnt = server.environ['users']
+            MinCntSerer = server
+    if MinCntSerer:
+        answer = sendrec({
+            'method': 'login',
+            'user': newUser
+            },server)
+        if answer\
+        and answer['status'] == 200:
+            users.append(newUser)
+            MinCntSerer.environ['users'] += 1
 @app.route('/server/<filepath>')
 def handle_file(filepath):
     if len(servers) == 0:
@@ -47,6 +69,7 @@ def handle_server():
     reg['status'] = 200
     wsock.send(json.dumps(reg))
     wsock.environ['messages'] = []
+    wsock.environ['users'] = 0
     servers.append(wsock)
     logging.info('new server:'+str(wsock.environ['REMOTE_ADDR']))
     while True:
