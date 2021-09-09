@@ -32,6 +32,7 @@ def handle_login():
             "user": bottle.request.forms.get('password'),
             "password": bottle.request.forms.get('password'),
             }
+    #find Server with minimal Users count
     MinCnt = 999999
     MinCntSerer = None
     for server in servers:
@@ -47,7 +48,10 @@ def handle_login():
         and answer['status'] == 200:
             users.append(newUser)
             MinCntSerer.environ['users'] += 1
-@app.route('/server/<filepath>')
+            bottle.redirect('/server/world/'+MinCntSerer.environ['reg']['world']+'/index.html')
+        else:
+            app.error(401)
+@app.route('/server/<filepath:path>')
 def handle_file(filepath):
     if len(servers) == 0:
         bottle.abort(502,'No servers avalible')
@@ -68,6 +72,7 @@ def handle_server():
     reg = json.loads(wsock.receive())
     reg['status'] = 200
     wsock.send(json.dumps(reg))
+    wsock.environ['reg'] = reg
     wsock.environ['messages'] = []
     wsock.environ['users'] = 0
     servers.append(wsock)

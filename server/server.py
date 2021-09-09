@@ -15,6 +15,7 @@ async def ProcessMessages(uri,args):
         ProxySocket = socket
         await socket.send(json.dumps({
                     'method': 'register',
+                    'world': args.world,
                 }))
         registered = json.loads(await socket.recv())
         if registered['status']!=200:
@@ -30,12 +31,16 @@ async def ProcessMessages(uri,args):
             while True:
                 umessage = await socket.recv()
                 message = json.loads(umessage)
+                logging.debug(message)
                 if message['method'] == 'get':
                     message['status'] = 200
                     data = getFile(message['uri'])
                     if type(data) is str:
                         data = data.encode()
                     message['data'] = base64.encodebytes(data).decode()
+                    await socket.send(json.dumps(message))
+                elif message['method'] == 'login':
+                    message['status'] = 200
                     await socket.send(json.dumps(message))
         except BaseException as e:
             logging.error(str(e))
@@ -97,5 +102,5 @@ def ColoredOutput(log_level):
             set_color(level, 30 + idx )
     logging.basicConfig(stream=std_stream, level=log_level)
     logging.root.setLevel(log_level)    
-ColoredOutput(logging.INFO)
+ColoredOutput(logging.DEBUG)
 asyncio.get_event_loop().run_until_complete(main())
