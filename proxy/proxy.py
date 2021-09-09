@@ -4,7 +4,7 @@ servers = []
 users = []
 @app.route('/')
 @app.route('/index.html')
-@app.route('/client/<filepath>')
+@app.route('/client/<filepath:path>')
 def handle_index(filepath='index.html'):
     basepath = str(pathlib.Path('/'.join(list(pathlib.Path(__file__).parts)[0:-2])) / 'client')
     if os.path.splitext(filepath)[1][:4].lower() == '.htm':
@@ -31,6 +31,7 @@ def handle_login():
     newUser = {
             "user": bottle.request.forms.get('password'),
             "password": bottle.request.forms.get('password'),
+            #"challange": bottle.request.forms.get('challange'),
             }
     #find Server with minimal Users count
     MinCnt = 999999
@@ -48,7 +49,7 @@ def handle_login():
         and answer['status'] == 200:
             users.append(newUser)
             MinCntSerer.environ['users'] += 1
-            bottle.redirect('/server/world/'+MinCntSerer.environ['reg']['world']+'/index.html')
+            bottle.redirect('/server/contents/'+MinCntSerer.environ['reg']['world']+'/world.html')
         else:
             app.error(401)
 @app.route('/server/<filepath:path>')
