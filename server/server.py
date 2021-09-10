@@ -117,5 +117,5 @@ def ColoredOutput(log_level):
             set_color(level, 30 + idx )
     logging.basicConfig(stream=std_stream, level=log_level)
     logging.root.setLevel(log_level)    
-ColoredOutput(logging.INFO)
+ColoredOutput(logging.DEBUG)
 asyncio.get_event_loop().run_until_complete(main())

@@ -22,7 +22,7 @@ def sendrec(message,sock):
                     res = msg
                     sock.environ['messages'].remove(msg)
                     return msg
-            gevent.sleep(0.0001)
+            gevent.sleep(0.001)
     except:
         pass
     return None    
@@ -65,8 +65,10 @@ def handle_file(filepath):
             },server)
         if answer and answer['status']==200:
             return base64.decodebytes(answer['data'].encode())
-            break
-    return bottle.abort(404)
+        elif answer:
+            #print(answer)
+            return bottle.abort(answer['status'])
+    return bottle.error(400)
 @app.route('/serversocket')
 def handle_server():
     wsock = bottle.request.environ.get('wsgi.websocket')
