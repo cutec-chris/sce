@@ -1,16 +1,19 @@
 #!/usr/bin/env python
-import asyncio,websockets,json,base64,importlib,importlib.util,argparse,logging,pathlib,sys,os,hupper
+import asyncio,websockets,json,base64,importlib,importlib.util,argparse,logging,pathlib,sys,os
 try:import watchdog.observers,watchdog.events
-except BaseException as e:logging.debug(str(e))
+except BaseException as e:logging.debug('Failed importing watchdog:'+str(e))
 def getFile(path):
-    if str(path).startswith('/world/'):
-        return 'Hello from World '+path
+    path = pathlib.Path(path)
+    if path.exists():
+        with open(str(path),'r') as f:
+            return f.read()
     else:
-        return 'Hello World from '+path
+        return None
 global ProxySocket 
 ProxySocket = None
 async def ProcessMessages(uri,args):
     global ProxySocket
+    logging.info('connecting to {}'.format(uri))
     async with websockets.connect(uri) as socket:
         ProxySocket = socket
         await socket.send(json.dumps({
@@ -21,11 +24,15 @@ async def ProcessMessages(uri,args):
         if registered['status']!=200:
             return False
         #load World
-        logging.info('loading world %s' % args.world)
-        spec = importlib.util.spec_from_file_location(args.world, pathlib.Path(__file__).parent.parent / 'contents' / args.world / '__init__.py')
-        w = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(w)
-        World = w.World(str(args.savefiles).replace('$world',args.world))
+        try:
+            logging.info('loading world %s' % args.world)
+            spec = importlib.util.spec_from_file_location(args.world, pathlib.Path(__file__).parent.parent / 'contents' / args.world / '__init__.py')
+            w = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(w)
+            World = w.World(str(args.savefiles).replace('$world',args.world))
+        except BaseException as e:
+            logging.error('failed loading World:'+str(e))
+            raise
         logging.info('server running')
         try:
             while True:
@@ -37,11 +44,16 @@ async def ProcessMessages(uri,args):
                     data = getFile(message['uri'])
                     if type(data) is str:
                         data = data.encode()
-                    message['data'] = base64.encodebytes(data).decode()
+                    if data is not None:
+                        message['data'] = base64.encodebytes(data).decode()
+                    else:
+                        message['status'] = 404
                     await socket.send(json.dumps(message))
                 elif message['method'] == 'login':
                     message['status'] = 200
                     await socket.send(json.dumps(message))
+        except asyncio.exceptions.CancelledError:
+            pass
         except BaseException as e:
             logging.error(str(e))
 async def Watchfiles():
@@ -62,6 +74,10 @@ async def Watchfiles():
         observer.start()
         while not ShouldExit:
             await asyncio.sleep(0.1)
+    except asyncio.exceptions.CancelledError:
+        pass
+    except BaseException as e:
+        logging.error('Watchdog:'+str(e.__class__)+' '+str(e))
     finally:
         logging.info('finishing watchdog...')
         observer.stop()
@@ -78,8 +94,7 @@ async def main():
     #parser.add_argument('--sum', dest='accumulate', action='store_const', const=sum, default=max, help='sum the integers (default: find the max)')
     args = parser.parse_args()
     #print(args.accumulate(args.integers))    
-    uri = args.proxy+':8080/serversocket'
-    logging.info('connecting to {}'.format(uri))
+    uri = args.proxy+'/serversocket'
     taskMessages = asyncio.Task(ProcessMessages(uri,args))
     taskWatchdog = asyncio.Task(Watchfiles())
     try:
@@ -102,5 +117,5 @@ def ColoredOutput(log_level):
             set_color(level, 30 + idx )
     logging.basicConfig(stream=std_stream, level=log_level)
     logging.root.setLevel(log_level)    
-ColoredOutput(logging.DEBUG)
+ColoredOutput(logging.INFO)
 asyncio.get_event_loop().run_until_complete(main())

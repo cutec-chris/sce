@@ -52,6 +52,8 @@ def handle_login():
             bottle.redirect('/server/contents/'+MinCntSerer.environ['reg']['world']+'/world.html')
         else:
             app.error(401)
+    else:
+        app.error(401)
 @app.route('/server/<filepath:path>')
 def handle_file(filepath):
     if len(servers) == 0:
