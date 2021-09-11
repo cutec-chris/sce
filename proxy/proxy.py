@@ -64,6 +64,7 @@ def handle_file(filepath):
             'uri': filepath
             },server)
         if answer and answer['status']==200:
+            bottle.response.headers['Cache-Control'] = 'public, max-age=604800'
             return base64.decodebytes(answer['data'].encode())
         elif answer:
             #print(answer)
