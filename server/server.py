@@ -118,4 +118,8 @@ def ColoredOutput(log_level):
     logging.basicConfig(stream=std_stream, level=log_level)
     logging.root.setLevel(log_level)    
 ColoredOutput(logging.DEBUG)
+logging.getLogger('asyncio').setLevel(logging.ERROR)
+logging.getLogger('asyncio.coroutines').setLevel(logging.ERROR)
+logging.getLogger('websockets.server').setLevel(logging.ERROR)
+logging.getLogger('websockets.protocol').setLevel(logging.ERROR)
 asyncio.get_event_loop().run_until_complete(main())

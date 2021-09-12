@@ -1,4 +1,4 @@
-import bottle,json,logging,base64,random,time,pathlib,os
+import bottle,json,logging,base64,random,time,pathlib,os,uuid,sys
 app = bottle.Bottle()
 servers = []
 users = []
@@ -49,6 +49,9 @@ def handle_login():
         and answer['status'] == 200:
             users.append(newUser)
             MinCntSerer.environ['users'] += 1
+            id = str(uuid.uuid4())
+            newUser['id'] = id
+            bottle.response.set_cookie('sid',id)
             bottle.redirect('/server/contents/'+MinCntSerer.environ['reg']['world']+'/world.html')
         else:
             app.error(401)
@@ -65,6 +68,9 @@ def handle_file(filepath):
             },server)
         if answer and answer['status']==200:
             bottle.response.headers['Cache-Control'] = 'public, max-age=604800'
+            if filepath.endswith('.mjs')\
+            or filepath.endswith('.js'):
+                bottle.response.content_type = 'application/javascript'
             return base64.decodebytes(answer['data'].encode())
         elif answer:
             #print(answer)
@@ -100,14 +106,42 @@ def handle_client():
     while True:
         try:
             message = wsock.receive()
-            #wsock.send("Your message was: %r" % message)
+            try:
+                logging.warning(message)
+                #wsock.send("Your message was: %r" % message)
+                message = json.loads(message)
+                res = None
+                if message['method'] == 'registration':
+                    res = message
+                    res['status'] = 200
+                if res:
+                    res['to'] = res['from']
+                    res['from'] = None
+                    wsock.send(json.dumps(res))
+            except:
+                pass
         except WebSocketError:
             break
 import gevent.monkey
 from gevent.pywsgi import WSGIServer
 from geventwebsocket import WebSocketError
 from geventwebsocket.handler import WebSocketHandler
-logging.basicConfig(level=logging.INFO)
+def ColoredOutput(log_level):
+    def set_color(level, code):
+        level_fmt = "\033[1;" + str(code) + "m%s\033[1;0m" 
+        logging.addLevelName( level, level_fmt % logging.getLevelName(level) )
+    std_stream = sys.stdout
+    isatty = getattr(std_stream, 'isatty', None)
+    if isatty and isatty():
+        levels = [logging.DEBUG, logging.CRITICAL, logging.WARNING, logging.ERROR]
+        set_color(logging.WARNING, 34)
+        set_color(logging.ERROR, 31)
+        set_color(logging.CRITICAL, 45)
+        for idx, level in enumerate(levels):
+            set_color(level, 30 + idx )
+    logging.basicConfig(stream=std_stream, level=log_level)
+    logging.root.setLevel(log_level)    
+ColoredOutput(logging.INFO)
 server = WSGIServer(("0.0.0.0", 8080), app,
                     handler_class=WebSocketHandler)
 server.serve_forever()
