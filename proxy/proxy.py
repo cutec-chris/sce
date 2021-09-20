@@ -35,12 +35,12 @@ def handle_login():
             }
     #find Server with minimal Users count
     MinCnt = 999999
-    MinCntSerer = None
+    MinCntServer = None
     for server in servers:
-        if server.environ['users'] < MinCnt:
-            MinCnt = server.environ['users']
-            MinCntSerer = server
-    if MinCntSerer:
+        if server.environ['userCount'] < MinCnt:
+            MinCnt = server.environ['userCount']
+            MinCntServer = server
+    if MinCntServer:
         answer = sendrec({
             'method': 'login',
             'user': newUser
@@ -48,11 +48,13 @@ def handle_login():
         if answer\
         and answer['status'] == 200:
             users.append(newUser)
-            MinCntSerer.environ['users'] += 1
+            MinCntServer.environ['userCount'] += 1
             id = str(uuid.uuid4())
             newUser['id'] = id
+            newUser['server'] = MinCntServer
             bottle.response.set_cookie('sid',id)
-            bottle.redirect('/server/contents/'+MinCntSerer.environ['reg']['world']+'/world.html')
+            bottle.redirect('/server/contents/'+MinCntServer.environ['reg']['world']+'/world.html')
+            logging.info('User %s logged in' % newUser['user'])
         else:
             app.error(401)
     else:
@@ -86,7 +88,8 @@ def handle_server():
     wsock.send(json.dumps(reg))
     wsock.environ['reg'] = reg
     wsock.environ['messages'] = []
-    wsock.environ['users'] = 0
+    wsock.environ['userCount'] = 0
+    wsock.environ['users'] = []
     servers.append(wsock)
     logging.info('new server:'+str(wsock.environ['REMOTE_ADDR']))
     while True:
@@ -97,6 +100,10 @@ def handle_server():
         except WebSocketError:
             break
     logging.info('server gone')
+    for user in users:
+        if user.server == wsock:
+            user.socket.disconnect()
+            user.socket = None
     servers.remove(wsock)
 @app.route('/clientsocket')
 def handle_client():
@@ -113,7 +120,12 @@ def handle_client():
                 res = None
                 if message['method'] == 'registration':
                     res = message
-                    res['status'] = 200
+                    for user in users:
+                        if user['id'] == message['from']:
+                            res['status'] = 200
+                            user.socket = wsock
+                    if res['status'] != 200:
+                        res['status'] = 401
                 if res:
                     res['to'] = res['from']
                     res['from'] = None
