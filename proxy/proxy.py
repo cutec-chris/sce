@@ -51,6 +51,7 @@ def handle_login():
             MinCntSerer.environ['users'] += 1
             id = str(uuid.uuid4())
             newUser['id'] = id
+            newUser['server'] = MinCntSerer
             bottle.response.set_cookie('sid',id)
             bottle.redirect('/server/contents/'+MinCntSerer.environ['reg']['world']+'/world.html')
         else:
@@ -97,6 +98,10 @@ def handle_server():
         except WebSocketError:
             break
     logging.info('server gone')
+    for user in users:
+        if user['server'] == wsock:
+            user['server'] = None
+            user['socket'].disconnect()
     servers.remove(wsock)
 @app.route('/clientsocket')
 def handle_client():
@@ -107,13 +112,21 @@ def handle_client():
         try:
             message = wsock.receive()
             try:
-                logging.warning(message)
                 #wsock.send("Your message was: %r" % message)
-                message = json.loads(message)
                 res = None
-                if message['method'] == 'registration':
-                    res = message
-                    res['status'] = 200
+                if 'registration' in message:
+                    message = json.loads(message)
+                    if message['method'] == 'registration':
+                        res = message
+                        for user in users:
+                            if user['id'] == message['from']:
+                                wsock.environ['user'] = user
+                                user['socket'] = wsock
+                        res['status'] = 200
+                if res is None:
+                    if wsock.environ['user'] is not None:
+                        if wsock.environ['user']['server'] is not None:
+                            wsock.environ['user']['server']['socket'].send(message)
                 if res:
                     res['to'] = res['from']
                     res['from'] = None

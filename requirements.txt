@@ -1,3 +1,5 @@
 bottle
 gevent-websocket
 watchdog
+websockets
+jinja2
