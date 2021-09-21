@@ -96,7 +96,14 @@ def handle_server():
         try:
             message = wsock.receive()
             if message:
-                wsock.environ['messages'].append(json.loads(message))
+                message = json.loads(message)
+                if 'id' in message: #answer or message with expected answer
+                    wsock.environ['messages'].append(message)
+                else:               #direct message no answer (or expected)
+                    for user in users:
+                        if user['id'] == message['to']:
+                            user['socket'].send(json.dumps(message))
+                            break
         except WebSocketError:
             break
     logging.info('server gone')
