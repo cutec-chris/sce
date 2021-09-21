@@ -110,28 +110,28 @@ def handle_client():
     wsock = bottle.request.environ.get('wsgi.websocket')
     if not wsock:
         bottle.abort(400, 'Expected WebSocket request.')
+    #registration
+    message = wsock.receive()
+    message = json.loads(message)
+    if message['method'] == 'registration':
+        res = message
+        for user in users:
+            if user['id'] == message['from']:
+                wsock.environ['user'] = user
+                user['socket'] = wsock
+        res['status'] = 200
+        res['to'] = res['from']
+        res['from'] = None
+        wsock.send(json.dumps(res))
+    if not res or not res['status'] == 200:
+        return
     while True:
         try:
             message = wsock.receive()
             try:
                 #wsock.send("Your message was: %r" % message)
-                res = None
-                if 'registration' in message:
-                    message = json.loads(message)
-                    if message['method'] == 'registration':
-                        res = message
-                        for user in users:
-                            if user['id'] == message['from']:
-                                wsock.environ['user'] = user
-                                user['socket'] = wsock
-                        res['status'] = 200
-                if res is None:
-                    if wsock.environ['user'] is not None:
-                        if wsock.environ['user']['server'] is not None:
-                            wsock.environ['user']['server']['socket'].send(message)
+                wsock.environ['user']['server']['socket'].send(message)
                 if res:
-                    res['to'] = res['from']
-                    res['from'] = None
                     wsock.send(json.dumps(res))
             except:
                 pass
