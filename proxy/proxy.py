@@ -113,18 +113,20 @@ def handle_client():
     #registration
     message = wsock.receive()
     message = json.loads(message)
+    res = None
     if message['method'] == 'registration':
-        res = message
         for user in users:
             if user['id'] == message['from']:
+                res = message
                 wsock.environ['user'] = user
                 user['socket'] = wsock
-        res['status'] = 200
-        res['to'] = res['from']
-        res['from'] = None
-        wsock.send(json.dumps(res))
-    if not res or not res['status'] == 200:
-        return
+        if res:
+            res['status'] = 200
+            res['to'] = res['from']
+            res['from'] = None
+            wsock.send(json.dumps(res))
+        else:
+            return
     while True:
         try:
             message = wsock.receive()
