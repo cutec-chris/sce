@@ -2,6 +2,7 @@ import bottle,json,logging,base64,random,time,pathlib,os,uuid,sys
 app = bottle.Bottle()
 servers = []
 users = []
+ownId = str(uuid.uuid4())
 @app.route('/')
 @app.route('/index.html')
 @app.route('/client/<filepath:path>')
@@ -14,6 +15,7 @@ def handle_index(filepath='index.html'):
 def sendrec(message,sock):
     aId = int(random.random()*10000)
     message['id'] = aId
+    message['from'] = ownId
     try:
         sock.send(json.dumps(message))
         for i in range(1000):
@@ -96,13 +98,12 @@ def handle_server():
         try:
             message = wsock.receive()
             if message:
-                message = json.loads(message)
-                if 'id' in message: #answer or message with expected answer
+                if ownId in message: #answer to proxy
                     wsock.environ['messages'].append(message)
                 else:               #direct message no answer (or expected)
                     for user in users:
-                        if user['id'] == message['to']:
-                            user['socket'].send(json.dumps(message))
+                        if user['id'] in message:
+                            user['socket'].send(message)
                             break
         except WebSocketError:
             break
