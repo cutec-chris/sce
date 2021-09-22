@@ -23,5 +23,9 @@ global.Network.Connect = function() {
       from: getCookie('sid')
     },function(msg){
       global.Network.from = msg.to;
+      document.getElementById('connectionlost').setAttribute('visible',false)
     });
+}
+global.Network.Connect = function() {
+  document.getElementById('connectionlost').setAttribute('visible',true)
 }

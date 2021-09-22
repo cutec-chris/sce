@@ -39,9 +39,10 @@ def handle_login():
     MinCnt = 999999
     MinCntServer = None
     for server in servers:
-        if server.environ['userCount'] < MinCnt:
-            MinCnt = server.environ['userCount']
-            MinCntServer = server
+        if not server.closed:
+            if not 'userCount' in server.environ or server.environ['userCount'] < MinCnt:
+                MinCnt = server.environ['userCount']
+                MinCntServer = server
     if MinCntServer:
         answer = sendrec({
             'method': 'login',
@@ -113,8 +114,10 @@ def handle_server():
     for user in users:
         if user['server'] == wsock:
             user['server'] = None
-            user['socket'].disconnect()
-    servers.remove(wsock)
+            user['socket'].close()
+    for server in servers:
+        if server.closed:
+            servers.remove(wsock)
 @app.route('/clientsocket')
 def handle_client():
     wsock = bottle.request.environ.get('wsgi.websocket')
@@ -134,7 +137,9 @@ def handle_client():
             res['status'] = 200
             res['to'] = res['from']
             res['from'] = None
-            wsock.send(json.dumps(res))
+            tsnd = json.dumps(res)
+            wsock.send(tsnd)
+            wsock.environ['user']['server'].send(tsnd)
         else:
             return
     while True:

@@ -52,6 +52,9 @@ async def ProcessMessages(uri,args):
                 elif message['method'] == 'login':
                     message['status'] = 200
                     await socket.send(json.dumps(message))
+                elif message['method'] == 'register':
+                    message['status'] = 200
+                    await socket.send(json.dumps(message))
         except asyncio.exceptions.CancelledError:
             pass
         except BaseException as e:
