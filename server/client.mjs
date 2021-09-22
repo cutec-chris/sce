@@ -23,6 +23,5 @@ global.Network.Connect = function() {
       from: getCookie('sid')
     },function(msg){
       global.Network.from = msg.to;
-      console.log('Our ID:'+msg.to);
     });
 }

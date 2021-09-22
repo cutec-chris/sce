@@ -58,9 +58,11 @@ def handle_login():
             bottle.redirect('/server/contents/'+MinCntServer.environ['reg']['world']+'/world.html')
             logging.info('User %s logged in' % newUser['user'])
         else:
-            app.error(401)
+            logging.warning('Login of user "%s" failed' % newUser['user'])
+            bottle.redirect('/')
     else:
-        app.error(401)
+        logging.warning('No server avalible')
+        bottle.redirect('/')
 @app.route('/server/<filepath:path>')
 def handle_file(filepath):
     if len(servers) == 0:
@@ -99,7 +101,7 @@ def handle_server():
             message = wsock.receive()
             if message:
                 if ownId in message: #answer to proxy
-                    wsock.environ['messages'].append(message)
+                    wsock.environ['messages'].append(json.loads(message))
                 else:               #direct message no answer (or expected)
                     for user in users:
                         if user['id'] in message:
