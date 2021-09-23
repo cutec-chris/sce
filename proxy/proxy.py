@@ -18,7 +18,7 @@ def sendrec(message,sock):
     message['from'] = ownId
     try:
         sock.send(json.dumps(message))
-        for i in range(1000):
+        for i in range(5000):
             for msg in sock.environ['messages']:
                 if msg['id'] == aId:
                     res = msg
@@ -114,7 +114,8 @@ def handle_server():
     for user in users:
         if user['server'] == wsock:
             user['server'] = None
-            user['socket'].close()
+            try: user['socket'].close()
+            except: pass
     for server in servers:
         if server.closed:
             servers.remove(wsock)
