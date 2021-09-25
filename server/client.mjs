@@ -26,6 +26,6 @@ global.Network.Connect = function() {
       document.getElementById('connectionlost').setAttribute('visible',false)
     });
 }
-global.Network.Connect = function() {
+global.Network.Disconnect = function() {
   document.getElementById('connectionlost').setAttribute('visible',true)
 }
