@@ -17,7 +17,8 @@ def sendrec(message,sock):
     message['id'] = aId
     message['from'] = ownId
     try:
-        sock.send(json.dumps(message))
+        emsg = json.dumps(message)
+        sock.send(emsg)
         for i in range(5000):
             for msg in sock.environ['messages']:
                 if msg['id'] == aId:
@@ -25,16 +26,10 @@ def sendrec(message,sock):
                     sock.environ['messages'].remove(msg)
                     return msg
             gevent.sleep(0.001)
-    except:
-        pass
+    except BaseException as e:
+        logging.error(str(e))
     return None    
-@app.post('/login')
-def handle_login():
-    newUser = {
-            "user": bottle.request.forms.get('password'),
-            "password": bottle.request.forms.get('password'),
-            #"challange": bottle.request.forms.get('challange'),
-            }
+def FindServer(newUser):
     #find Server with minimal Users count
     MinCnt = 999999
     MinCntServer = None
@@ -46,23 +41,34 @@ def handle_login():
     if MinCntServer:
         answer = sendrec({
             'method': 'login',
-            'user': newUser
-            },server)
+            'user': newUser['data']
+            },MinCntServer)
         if answer\
         and answer['status'] == 200:
-            users.append(newUser)
+            if not newUser in users:
+                users.append(newUser)
             MinCntServer.environ['userCount'] += 1
-            id = str(uuid.uuid4())
-            newUser['id'] = id
+            if newUser['data']['id'] is None:
+                id = str(uuid.uuid4())
+                newUser['data']['id'] = id
             newUser['server'] = MinCntServer
-            bottle.response.set_cookie('sid',id)
-            bottle.redirect('/server/contents/'+MinCntServer.environ['reg']['world']+'/world.html')
-            logging.info('User %s logged in' % newUser['user'])
-        else:
-            logging.warning('Login of user "%s" failed' % newUser['user'])
-            bottle.redirect('/')
+            return MinCntServer
+    return None
+@app.post('/login')
+def handle_login():
+    newUser = { "data": {
+                    "user": bottle.request.forms.get('password'),
+                    "password": bottle.request.forms.get('password'),
+                    #"challange": bottle.request.forms.get('challange'),
+                    "id": None,
+                }
+            }
+    if FindServer(newUser):
+        bottle.response.set_cookie('sid',newUser['data']['id'])
+        bottle.redirect('/server/contents/'+newUser['server'].environ['reg']['world']+'/world.html')
+        logging.info('User %s logged in' % newUser['user'])
     else:
-        logging.warning('No server avalible')
+        logging.warning('No server avalible or Login failed')
         bottle.redirect('/')
 @app.route('/server/<filepath:path>')
 def handle_file(filepath):
@@ -130,10 +136,13 @@ def handle_client():
     res = None
     if message['method'] == 'registration':
         for user in users:
-            if user['id'] == message['from']:
+            if user['data']['id'] == message['from']:
                 res = message
                 wsock.environ['user'] = user
                 user['socket'] = wsock
+                if wsock.environ['user']['server'] is None:
+                    if not FindServer(user):
+                        res = None
         if res:
             res['status'] = 200
             res['to'] = res['from']
