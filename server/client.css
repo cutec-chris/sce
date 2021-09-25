@@ -1,0 +1,20 @@
+html, body {
+    height: 100%;
+    margin: 0px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+#scene {
+  display: none;    
+}
+#nologin {
+  z-index: 1000;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background-color: white;
+  opacity: 1;
+  transition: opacity 1s; 
+}
+#nologin.fadeout {
+  opacity: 0;
+}

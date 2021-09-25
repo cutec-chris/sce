@@ -84,6 +84,8 @@ def handle_file(filepath):
             if filepath.endswith('.mjs')\
             or filepath.endswith('.js'):
                 bottle.response.content_type = 'application/javascript'
+            elif filepath.endswith('.css'):
+                bottle.response.content_type = 'text/css'
             return base64.decodebytes(answer['data'].encode())
         elif answer:
             #print(answer)

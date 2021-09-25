@@ -1,4 +1,6 @@
 import Network from "/server/server/wsclient.mjs"
+function InitScene() {
+}
 global.Network = new Network('ws://localhost:8080/clientsocket')
 global.Network.Connect = function() {
     function getCookie(cname) {
@@ -16,6 +18,7 @@ global.Network.Connect = function() {
       }
       return "";
     }
+    document.getElementById('nologin').style.display='inline';
     global.Network.SendReceive({
       method: "registration",
       type: "client",
@@ -23,7 +26,13 @@ global.Network.Connect = function() {
       from: getCookie('sid')
     },function(msg){
       global.Network.from = msg.to;
-      document.getElementById('connectionlost').setAttribute('visible',false)
+      InitScene();
+      document.getElementById('scene').style.display='inline';
+      document.getElementById('nologin').classList.toggle('fadeout');
+      document.getElementById('connectionlost').setAttribute('visible',false);
+      window.setTimeout(() => {
+        document.getElementById('nologin').style.display='none';
+      }, 1000);
     });
 }
 global.Network.Disconnect = function() {
