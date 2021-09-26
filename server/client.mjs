@@ -2,6 +2,32 @@ import Network from "/server/server/wsclient.mjs"
 function InitScene() {
 }
 global.Network = new Network('ws://localhost:8080/clientsocket')
+global.Network.Receive = function(message) {
+  //console.log('Received:',message);
+  switch(message.action) {
+    case 'create-tile':
+      newTile = document.getElementById('tiles').appendChild('a-entity');
+      newTile.setAttribute('position',message.position);
+      newTile.id = message.entityId;
+      message.status = 200;
+      break;
+    case 'destroy-tile':
+      aTile = document.getElementById(message.entityId);
+      aTile.remove()
+      message.status = 200;
+      break;
+    case 'spawn':
+      aParent = document.getElementById(message.parentId);
+      break;
+    case 'status':
+      aObj = document.getElementById(message.entityId);
+      break;
+  }
+  if (message.status == 200) {
+    message.to = message.from;
+    message.from = global.Network.from;
+  }
+}
 global.Network.Connect = function() {
     function getCookie(cname) {
       let name = cname + "=";

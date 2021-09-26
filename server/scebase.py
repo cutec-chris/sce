@@ -23,17 +23,35 @@ class Creature(GameObject,AABBColide):
         #Calculate Movement
         #Add Objects seen and remove some of lastSeen objects
         super().Tick(self,Ticks) #execute Actions
+class Player(GameObject): pass
 class World:
     def __init__(self,Path):
-        self.Quadrants = []
+        self.Tiles = []
         self.Path = pathlib.Path(Path)
         if not self.Path.exists():
             self.Path.mkdir(parents=True)
+        (self.Path / 'users').mkdir(parents=True,exist_ok=True)
+        (self.Path / 'tiles').mkdir(parents=True,exist_ok=True)
     def Spawn(self,Blueprint,Position):
         return False
     def SaveWorld(self):
         return False
-class Quadrant:
+    def processMessage(self,Message):
+        if message['method'] == 'login':
+            if (self.Path / 'users' / (message['user']+'.json')).exists():
+
+            if World.Login(message['user'],message['password']):
+                message['status'] = 200
+            else:
+                message['status'] = 401
+            await socket.send(json.dumps(message))
+        elif message['method'] == 'register':
+            if World.Register(message['from']):
+                message['status'] = 200
+            else:
+                message['status'] = 401
+        pass
+class Tile:
     def __init__(self,Position):
         self.Position = Position
         self.Objects = []

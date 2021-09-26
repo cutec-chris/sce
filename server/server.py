@@ -30,6 +30,7 @@ async def ProcessMessages(uri,args):
             w = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(w)
             World = w.World(str(args.savefiles).replace('$world',args.world))
+            World._socket = socket
         except BaseException as e:
             logging.error('failed loading World:'+str(e))
             raise
@@ -49,12 +50,9 @@ async def ProcessMessages(uri,args):
                     else:
                         message['status'] = 404
                     await socket.send(json.dumps(message))
-                elif message['method'] == 'login':
-                    message['status'] = 200
-                    await socket.send(json.dumps(message))
-                elif message['method'] == 'register':
-                    message['status'] = 200
-                    await socket.send(json.dumps(message))
+                else:
+                    await socket.send(World.processMessage(message))
+
         except asyncio.exceptions.CancelledError:
             pass
         except BaseException as e:
