@@ -51,8 +51,8 @@ async def ProcessMessages(uri,args):
                         message['status'] = 404
                     await socket.send(json.dumps(message))
                 else:
-                    await socket.send(World.processMessage(message))
-
+                    answer = await World.processMessage(message)
+                    await socket.send(answer)
         except asyncio.exceptions.CancelledError:
             pass
         except BaseException as e:

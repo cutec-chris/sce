@@ -3,3 +3,4 @@ gevent-websocket
 watchdog
 websockets
 jinja2
+vectormath
