@@ -3,16 +3,27 @@ from vectormath.vector import Vector3
 class GameObject:
     def __init__(self,World,name,Position=Vector3(0,0,0),Direction=Vector3(0,0,0)):
         if not hasattr(self,'Folder'):
-            self.Folder = 'tiles/%d_%d_%d' % (Position[0] / 100,Position[1] / 100,Position[2] /100)
+            self.Folder = 'tiles/%d_%d_%d' % (Position[0] / World.TileSize,
+                                              Position[1] / World.TileSize,
+                                              Position[2] / World.TileSize)
         self.World = World
         self.name = name
         self.blueprintPath = None
-        self.Path = self.World.Path / self.Folder / (self.name + '.json')
+        self.Path = self._World.Path / self.Folder / (self.name + '.json')
         self.Position = Position
         self.Direction = Direction
         if self.Path.exists():
             with open(self.Path,'r') as f:
-                self.fromJson(f.read())
+                aJson = f.read()
+                if aJson != '':
+                    self.fromJson(aJson)
+    def __getstate__(self):
+        return {
+            'name': self.name,
+            'Position': self.Position,
+            'Direction': self.Direction,
+            'blueprintPath' : self.blueprintPath,
+        }
     def Hit(self,Type,SourceObject): return None,0 #returns List of Items (Loot) and Damage
     def Tick(self,TicksDone):
         #Execute actual Action
@@ -21,12 +32,13 @@ class GameObject:
                 #replan Actions
         pass
     def toJson(self):
-        return json.dumps(self, default=lambda o: o.__dict__)
-    def fromJson(self,json):
-        self.__dict__ = json.loads(json)
+        return json.dumps(self, default=lambda o: self.__getstate__)
+    def fromJson(self,aJson):
+        self.__dict__ = json.loads(aJson)
     def Save(self):
         with open(self.Path,'w') as f:
-            f.write(self.toJson())
+            aJson = self.toJson()
+            f.write(aJson)
     def __del__(self):
         self.Save()
 class AABBColide:
@@ -49,6 +61,7 @@ class World:
     def __init__(self,Path):
         self.Players = []
         self.Tiles = []
+        self.TileSize = 100
         self.Path = pathlib.Path(Path)
         if not self.Path.exists():
             self.Path.mkdir(parents=True)
@@ -66,9 +79,9 @@ class World:
                     message['status'] = 200
                     break
             if message['status'] != 200:
-                self.Players.append(Player(self,message['user']))
+                self.Players.append(Player(self,message['user']['user']))
                 message['status'] = 200
-            await socket.send(json.dumps(message))
+            return message
         elif message['method'] == 'register':
             if World.Register(message['from']):
                 message['status'] = 200

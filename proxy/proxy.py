@@ -80,13 +80,14 @@ def handle_file(filepath):
             'uri': filepath
             },server)
         if answer and answer['status']==200:
-            bottle.response.headers['Cache-Control'] = 'public, max-age=604800'
+            #bottle.response.headers['Cache-Control'] = 'public, max-age=604800'
             if filepath.endswith('.mjs')\
             or filepath.endswith('.js'):
                 bottle.response.content_type = 'application/javascript'
             elif filepath.endswith('.css'):
                 bottle.response.content_type = 'text/css'
-            return base64.decodebytes(answer['data'].encode())
+            res = base64.decodebytes(answer['data'].encode())
+            return res
         elif answer:
             #print(answer)
             return bottle.abort(answer['status'])
@@ -113,9 +114,10 @@ def handle_server():
                     wsock.environ['messages'].append(json.loads(message))
                 else:               #direct message no answer (or expected)
                     for user in users:
-                        if user['id'] in message:
-                            user['socket'].send(message)
-                            break
+                        if 'id' in user:
+                            if user['id'] in message:
+                                user['socket'].send(message)
+                                break
         except WebSocketError:
             break
     logging.info('server gone')

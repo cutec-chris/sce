@@ -12,6 +12,21 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Proxy",
+            "type": "python",
+            "request": "launch",
+            "program": "proxy/proxy.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Trappist-1f",
+            "type": "python",
+            "request": "launch",
+            "program": "server/server.py",
+            "args": ["ws://localhost:8080","trappist-1f"],
+            "console": "integratedTerminal"
+        },
+        {
             "type": "pwa-chrome",
             "request": "launch",
             "name": "Launch Chrome against localhost",

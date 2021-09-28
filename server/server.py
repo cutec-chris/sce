@@ -52,7 +52,7 @@ async def ProcessMessages(uri,args):
                     await socket.send(json.dumps(message))
                 else:
                     answer = await World.processMessage(message)
-                    await socket.send(answer)
+                    await socket.send(json.dumps(answer))
         except asyncio.exceptions.CancelledError:
             pass
         except BaseException as e:
