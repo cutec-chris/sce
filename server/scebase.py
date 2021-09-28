@@ -9,7 +9,7 @@ class GameObject:
         self.World = World
         self.name = name
         self.blueprintPath = None
-        self.Path = self._World.Path / self.Folder / (self.name + '.json')
+        self.Path = self.World.Path / self.Folder / (self.name + '.json')
         self.Position = Position
         self.Direction = Direction
         if self.Path.exists():

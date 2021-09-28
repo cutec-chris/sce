@@ -44,7 +44,6 @@ global.Network.Connect = function() {
       }
       return "";
     }
-    document.getElementById('nologin').style.display='inline';
     global.Network.SendReceive({
       method: "registration",
       type: "client",
