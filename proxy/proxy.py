@@ -80,13 +80,16 @@ def handle_file(filepath):
             'uri': filepath
             },server)
         if answer and answer['status']==200:
-            #bottle.response.headers['Cache-Control'] = 'public, max-age=604800'
             if filepath.endswith('.mjs')\
             or filepath.endswith('.js'):
                 bottle.response.content_type = 'application/javascript'
             elif filepath.endswith('.css'):
                 bottle.response.content_type = 'text/css'
             res = base64.decodebytes(answer['data'].encode())
+            bottle.response.headers['Cache-Control'] = 'public, max-age=604800'
+            #bottle.response.headers['Cache-Control'] = 'no-cache'
+            bottle.response.headers['Last-Modified'] = answer['lastModified']
+            bottle.response.content_length = answer['size']
             return res
         elif answer:
             #print(answer)

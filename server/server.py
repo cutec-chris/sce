@@ -1,14 +1,15 @@
 #!/usr/bin/env python
-import asyncio,websockets,json,base64,importlib,importlib.util,argparse,logging,pathlib,sys,os
+import asyncio,websockets,json,base64,importlib,importlib.util,argparse,logging,pathlib,sys,os,time
 try:import watchdog.observers,watchdog.events
 except BaseException as e:logging.debug('Failed importing watchdog:'+str(e))
 def getFile(path):
     path = pathlib.Path(path)
     if path.exists():
+        stats = os.stat(str(path))
         with open(str(path),'r') as f:
-            return f.read()
+            return f.read(),stats.st_mtime,stats.st_size
     else:
-        return None
+        return None,None,None
 global ProxySocket 
 ProxySocket = None
 async def ProcessMessages(uri,args):
@@ -42,11 +43,13 @@ async def ProcessMessages(uri,args):
                 logging.debug(message)
                 if message['method'] == 'get':
                     message['status'] = 200
-                    data = getFile(message['uri'])
+                    data,date,size = getFile(message['uri'])
                     if type(data) is str:
                         data = data.encode()
                     if data is not None:
                         message['data'] = base64.encodebytes(data).decode()
+                        message['size'] = size
+                        message['lastModified'] = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(date))
                     else:
                         message['status'] = 404
                     await socket.send(json.dumps(message))
