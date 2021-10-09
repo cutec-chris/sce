@@ -6,7 +6,7 @@ def getFile(path):
     path = pathlib.Path(path)
     if path.exists():
         stats = os.stat(str(path))
-        with open(str(path),'r') as f:
+        with open(str(path),'rb') as f:
             return f.read(),stats.st_mtime,stats.st_size
     else:
         return None,None,None
@@ -60,6 +60,7 @@ async def ProcessMessages(uri,args):
             pass
         except BaseException as e:
             logging.error(str(e))
+        del(World)
 async def Watchfiles():
     global ShouldExit
     ShouldExit = False
