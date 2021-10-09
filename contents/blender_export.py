@@ -35,3 +35,6 @@ def ExportObject(File,Object,TargetName,**kwargs):
     bpy.context.scene.camera = camera_object
     bpy.context.scene.render.filepath = "orthogonal2.png"
     bpy.ops.render.render(write_still = True)
+
+    #https://blender.stackexchange.com/questions/130404/script-to-render-one-object-from-different-angles
+    #https://blender.stackexchange.com/questions/128185/check-if-the-whole-plane-is-being-on-a-orthographic-camera-render-or-get-a-prop
