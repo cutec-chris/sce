@@ -1,4 +1,4 @@
-import bpy,pathlib,mathutils
+import bpy,pathlib,mathutils,math
 def ExportObject(File,Object,TargetName,**kwargs):
     File = pathlib.Path(File)
     bpy.ops.wm.open_mainfile(filepath=str(File.absolute()))
@@ -31,7 +31,7 @@ def GenerateLOD0Object(target_obj,TargetName):
         #scene.render.image_settings.file_format = 'JPEG'
 
     camera_object.location = center
-    camera_object.rotation_euler = (90, 0, -90)
+    camera_object.rotation_euler = (math.radians(90), 0, math.radians(-90))
     v, scale = camera_object.camera_fit_coords(bpy.context.evaluated_depsgraph_get(), coords)
     camera_object.location = v
     bpy.data.cameras['Camera'].ortho_scale = scale
@@ -40,7 +40,7 @@ def GenerateLOD0Object(target_obj,TargetName):
     bpy.ops.render.render(write_still = True)
 
     camera_object.location = center
-    camera_object.rotation_euler = (90, 0, 0)
+    camera_object.rotation_euler = (math.radians(90), 0, 0)
     v, scale = camera_object.camera_fit_coords(bpy.context.evaluated_depsgraph_get(), coords)
     camera_object.location = v
     bpy.data.cameras['Camera'].ortho_scale = scale
@@ -54,9 +54,9 @@ def GenerateLOD0Object(target_obj,TargetName):
         calc_uvs=True,
         enter_editmode=False,
         align='WORLD',
-        location=(0, 0, 0),
-        rotation=(90, 0, 90))
+        location=(0, 0, 0))
     bpy.data.objects['Plane'].name = 'Plane1'
+    bpy.data.objects['Plane1'].rotation_euler=(math.radians(90), 0, math.radians(90))
     bpy.data.materials.new('Mat1')
     mat1 = bpy.data.materials['Mat1']
     mat1.use_nodes = True
@@ -75,16 +75,16 @@ def GenerateLOD0Object(target_obj,TargetName):
         calc_uvs=True,
         enter_editmode=False,
         align='WORLD',
-        location=(0, 0, 0),
-        rotation=(90, 90, 0))
+        location=(0, 0, 0))
     bpy.data.objects['Plane'].name = 'Plane2'
+    bpy.data.objects['Plane2'].rotation_euler=(math.radians(90), 0, 0)
     bpy.data.materials.new('Mat2')
     mat2 = bpy.data.materials['Mat2']
     mat2.use_nodes = True
     mat2.blend_method = 'BLEND'
     tex2 = mat2.node_tree.nodes.new('ShaderNodeTexImage')
     img2 = bpy.data.images.load('orthogonal2.png')
-    tex2.image = img1
+    tex2.image = img2
     mat2.node_tree.links.new(mat2.node_tree.nodes['Principled BSDF'].inputs['Base Color'], tex2.outputs[0])
     mat2.node_tree.links.new(mat2.node_tree.nodes['Principled BSDF'].inputs['Alpha'], tex2.outputs[1])
     mat2.node_tree.nodes['Principled BSDF'].inputs['Specular'].default_value = 0.0
