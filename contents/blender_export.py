@@ -1,4 +1,4 @@
-import bpy,pathlib,mathutils,math
+import bpy,pathlib,mathutils,math,os
 def ExportObject(File,Object,TargetName,**kwargs):
     File = pathlib.Path(File)
     bpy.ops.wm.open_mainfile(filepath=str(File.absolute()))
@@ -14,7 +14,7 @@ def ExportObject(File,Object,TargetName,**kwargs):
     GenerateLOD0Object(target_obj,TargetName)
     bpy.ops.wm.save_mainfile(filepath=str(File.absolute())+'out.blend')
     
-def GenerateLOD0Object(target_obj,TargetName):
+def GenerateLOD0Object(target_obj,TargetName,Resolution=256,Blending='CLIP'):
     # remove default light    
     bpy.ops.object.select_by_type(type='LIGHT')
     bpy.ops.object.delete(use_global=False)
@@ -34,11 +34,8 @@ def GenerateLOD0Object(target_obj,TargetName):
     bpy.context.scene.render.film_transparent = True
     bpy.context.scene.render.image_settings.color_mode = 'RGBA'
     for scene in bpy.data.scenes:
-        scene.render.resolution_x = 512
-        scene.render.resolution_y = 512
-        scene.view_layers["View Layer"].use_pass_diffuse_direct = False
-        scene.view_layers["View Layer"].use_pass_diffuse_color = True
-        scene.view_layers["View Layer"].use_pass_z = False
+        scene.render.resolution_x = Resolution
+        scene.render.resolution_y = Resolution
         #scene.render.image_settings.file_format = 'JPEG'
 
     camera_object.location = center
@@ -75,7 +72,7 @@ def GenerateLOD0Object(target_obj,TargetName):
     bpy.data.materials.new('Mat1')
     mat1 = bpy.data.materials['Mat1']
     mat1.use_nodes = True
-    mat1.blend_method = 'BLEND'
+    mat1.blend_method = Blending
     tex1 = mat1.node_tree.nodes.new('ShaderNodeTexImage')
     img1 = bpy.data.images.load('orthogonal1.png')
     tex1.image = img1
@@ -96,7 +93,7 @@ def GenerateLOD0Object(target_obj,TargetName):
     bpy.data.materials.new('Mat2')
     mat2 = bpy.data.materials['Mat2']
     mat2.use_nodes = True
-    mat2.blend_method = 'BLEND'
+    mat2.blend_method = Blending
     tex2 = mat2.node_tree.nodes.new('ShaderNodeTexImage')
     img2 = bpy.data.images.load('orthogonal2.png')
     tex2.image = img2
@@ -105,8 +102,9 @@ def GenerateLOD0Object(target_obj,TargetName):
     mat2.node_tree.nodes['Principled BSDF'].inputs['Specular'].default_value = 0.0
     print(mat2.node_tree.nodes['Principled BSDF'].inputs['Specular'])
     bpy.data.objects['Plane2'].active_material = mat2
-
     bpy.ops.export_scene.gltf(filepath=TargetName+'_0.glb',use_visible=True,export_cameras=False,export_apply=True)
+    os.remove('orthogonal1.png')
+    os.remove('orthogonal2.png')
 
     #https://blender.stackexchange.com/questions/130404/script-to-render-one-object-from-different-angles
     #https://blender.stackexchange.com/questions/128185/check-if-the-whole-plane-is-being-on-a-orthographic-camera-render-or-get-a-prop
