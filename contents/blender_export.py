@@ -10,11 +10,19 @@ def ExportObject(File,Object,TargetName,**kwargs):
             for obj in collection.all_objects:
                 print("obj: ", obj.name)
                 target_obj = obj
-    #bpy.ops.export_scene.gltf(filepath=TargetName+'_10.glb',use_visible=True,export_cameras=False,export_apply=True,**kwargs)
+    bpy.ops.export_scene.gltf(filepath=TargetName+'_10.glb',use_visible=True,export_cameras=False,export_apply=True,**kwargs)
     GenerateLOD0Object(target_obj,TargetName)
     bpy.ops.wm.save_mainfile(filepath=str(File.absolute())+'out.blend')
     
 def GenerateLOD0Object(target_obj,TargetName):
+    # remove default light    
+    bpy.ops.object.select_by_type(type='LIGHT')
+    bpy.ops.object.delete(use_global=False)
+    #add light
+    bpy.ops.object.light_add(type='AREA')
+    light = bpy.context.object
+    light.data.energy = 1500
+    #add camera for rendering
     bpy.ops.object.camera_add()
     bpy.data.cameras['Camera'].type = 'ORTHO'
     camera_object = bpy.data.objects['Camera']
@@ -22,18 +30,23 @@ def GenerateLOD0Object(target_obj,TargetName):
     bpy.data.cameras['Camera'].ortho_scale = 20
     pmw = target_obj.matrix_world
     coords = [t for b in target_obj.bound_box for t in pmw @ mathutils.Vector(b)]
-
+    #render 2 images from object
     bpy.context.scene.render.film_transparent = True
     bpy.context.scene.render.image_settings.color_mode = 'RGBA'
     for scene in bpy.data.scenes:
         scene.render.resolution_x = 512
         scene.render.resolution_y = 512
+        scene.view_layers["View Layer"].use_pass_diffuse_direct = False
+        scene.view_layers["View Layer"].use_pass_diffuse_color = True
+        scene.view_layers["View Layer"].use_pass_z = False
         #scene.render.image_settings.file_format = 'JPEG'
 
     camera_object.location = center
     camera_object.rotation_euler = (math.radians(90), 0, math.radians(-90))
     v, scale = camera_object.camera_fit_coords(bpy.context.evaluated_depsgraph_get(), coords)
     camera_object.location = v
+    light.location = v
+    light.rotation_euler = camera_object.rotation_euler
     bpy.data.cameras['Camera'].ortho_scale = scale
     bpy.context.scene.camera = camera_object
     bpy.context.scene.render.filepath = "orthogonal1.png"
@@ -43,11 +56,13 @@ def GenerateLOD0Object(target_obj,TargetName):
     camera_object.rotation_euler = (math.radians(90), 0, 0)
     v, scale = camera_object.camera_fit_coords(bpy.context.evaluated_depsgraph_get(), coords)
     camera_object.location = v
+    light.location = v
+    light.rotation_euler = camera_object.rotation_euler
     bpy.data.cameras['Camera'].ortho_scale = scale
     bpy.context.scene.camera = camera_object
     bpy.context.scene.render.filepath = "orthogonal2.png"
     bpy.ops.render.render(write_still = True)
-
+    #generate 2 planes with the images
     target_obj.hide_viewport = True
     bpy.ops.mesh.primitive_plane_add(
         size=2,
