@@ -1,5 +1,5 @@
 import bpy,pathlib,mathutils,math,os
-def ExportObject(File,Object,TargetName,**kwargs):
+def ExportObject(File,Object,TargetName,lod_ligthing=50,**kwargs):
     File = pathlib.Path(File)
     bpy.ops.wm.open_mainfile(filepath=str(File.absolute()))
     for collection in bpy.data.collections:
@@ -11,17 +11,17 @@ def ExportObject(File,Object,TargetName,**kwargs):
                 print("obj: ", obj.name)
                 target_obj = obj
     bpy.ops.export_scene.gltf(filepath=TargetName+'_10.glb',use_visible=True,export_cameras=False,export_apply=True,**kwargs)
-    GenerateLOD0Object(target_obj,TargetName)
-    bpy.ops.wm.save_mainfile(filepath=str(File.absolute())+'out.blend')
+    GenerateLOD0Object(target_obj,TargetName,lod_ligthing=lod_ligthing)
+    #bpy.ops.wm.save_mainfile(filepath=str(File.absolute())+'out.blend')
     
-def GenerateLOD0Object(target_obj,TargetName,Resolution=256,Blending='CLIP'):
+def GenerateLOD0Object(target_obj,TargetName,Resolution=400,Blending='CLIP',lod_ligthing=50):
     # remove default light    
     bpy.ops.object.select_by_type(type='LIGHT')
     bpy.ops.object.delete(use_global=False)
     #add light
     bpy.ops.object.light_add(type='AREA')
     light = bpy.context.object
-    light.data.energy = 1500
+    light.data.energy = lod_ligthing
     #add camera for rendering
     bpy.ops.object.camera_add()
     bpy.data.cameras['Camera'].type = 'ORTHO'
