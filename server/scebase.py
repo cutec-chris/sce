@@ -1,4 +1,4 @@
-import pathlib,json
+import pathlib,json,time
 from vectormath.vector import Vector3
 class GameObject:
     def __init__(self,World,name,Position=Vector3(0,0,0),Direction=Vector3(0,0,0)):
@@ -43,6 +43,13 @@ class GameObject:
         self.Save()
 class AABBColide:
     def Collide(self,other):
+        if  self.Position.x > other.Left\
+        and self.Position.x < other.Right\
+        and self.Position.y > other.Near\
+        and self.Position.y < other.Far\
+        and self.Position.z > other.Bottom\
+        and self.Position.z < other.Top:
+            return True
         return False
 class Creature(GameObject,AABBColide):
     def __init__(self,Position):
@@ -57,6 +64,29 @@ class Player(GameObject):
     def __init__(self,World,name):
         self.Folder = 'players'
         super().__init__(World,name)
+        self.move(Vector3(0,0,0),0)
+        self.lastUpdate = time.time()
+        self.knownTiles = []
+    def move(self,Direction,Speed):
+        #update Position (lastUpdate time-now)
+        #Check if tile known to client and create if not there
+        tileFound = False
+        for tile in self.knownTiles:
+            if self.Collide(tile):
+                tileFound = True
+                break
+        if not tileFound:
+            for tile in self.World.Tiles:
+                if self.Collide(tile):
+                    tileFound = True
+                    self.knownTiles.append(tile)
+                    break
+        if not tileFound:
+            self.World.Tiles.append(Tile(Vector3(self.Position.x/self.World.TileSize,
+                                                 self.Position.y/self.World.TileSize,
+                                                 self.Position.z/self.World.TileSize
+                                                )))
+        #background load tiles in Sight until Framerate or Memory dropps
 class World:
     def __init__(self,Path):
         self.Players = []
