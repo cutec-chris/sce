@@ -69,7 +69,8 @@ def handle_login():
         logging.info('User %s logged in' % newUser['user'])
     else:
         logging.warning('No server avalible or Login failed')
-        bottle.redirect('/')
+        try: return bottle.redirect('/')
+        except: pass
 @app.route('/server/<filepath:path>')
 def handle_file(filepath):
     if len(servers) == 0:
