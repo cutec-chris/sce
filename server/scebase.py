@@ -8,7 +8,7 @@ class GameObject:
                                               Position[2] / World.TileSize)
         self.World = World
         self.name = name
-        self.blueprintPath = None
+        self.blueprintPath = pathlib.Path(__file__).parent
         self.Path = self.World.Path / self.Folder / (self.name + '.json')
         self.Position = Position
         self.Direction = Direction
@@ -17,12 +17,15 @@ class GameObject:
                 aJson = f.read()
                 if aJson != '':
                     self.fromJson(aJson)
+    def GetModel(self,lod=10)
+        return self.blueprintPath / ('%s_%d.glb' % (str(self.__name__),lod))
+class  DynamicObject(GameObject):
     def __getstate__(self):
         return {
-            'name': self.name,
+            'Name': self.name,
             'Position': self.Position,
             'Direction': self.Direction,
-            'blueprintPath' : self.blueprintPath,
+            'blueprintPath' : str(self.blueprintPath),
         }
     def Hit(self,Type,SourceObject): return None,0 #returns List of Items (Loot) and Damage
     def Tick(self,TicksDone):
@@ -51,7 +54,7 @@ class AABBColide:
         and self.Position.z < other.Top:
             return True
         return False
-class Creature(GameObject,AABBColide):
+class Creature(DynamicObject,AABBColide):
     def __init__(self,Position):
         super().__init__(Position)
         self.LastSeen = [] #List of last seen Objects
@@ -60,13 +63,13 @@ class Creature(GameObject,AABBColide):
         #Calculate Movement
         #Add Objects seen and remove some of lastSeen objects
         super().Tick(self,Ticks) #execute Actions
-class Player(GameObject):
+class Player(DynamicObject):
     def __init__(self,World,name):
         self.Folder = 'players'
         super().__init__(World,name)
+        self.knownTiles = []
         self.move(Vector3(0,0,0),0)
         self.lastUpdate = time.time()
-        self.knownTiles = []
     def move(self,Direction,Speed):
         #update Position (lastUpdate time-now)
         #Check if tile known to client and create if not there
