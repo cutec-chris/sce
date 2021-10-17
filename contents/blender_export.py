@@ -1,19 +1,27 @@
 import bpy,pathlib,mathutils,math,os
+def IsNewer(File1,File2):
+    try:
+        return os.path.getmtime(str(File1))<os.path.getmtime(str(File2))
+    except:
+        return True
 def ExportObject(File,Object,TargetName,lod=[10],lod_ligthing=50,**kwargs):
     File = pathlib.Path(File)
-    bpy.ops.wm.open_mainfile(filepath=str(File.absolute()))
-    for collection in bpy.data.collections:
-        collection.hide_viewport = collection.name != Object
-        if collection.name == Object:
-            print(collection.name)
-            target_obj = collection
-            for obj in collection.all_objects:
-                print("obj: ", obj.name)
-                target_obj = obj
-    bpy.ops.export_scene.gltf(filepath=TargetName+'_10.glb',use_visible=True,export_cameras=False,export_apply=True,**kwargs)
-    if 0 in lod:
-        GenerateLOD0Object(target_obj,TargetName,lod_ligthing=lod_ligthing)
-    #bpy.ops.wm.save_mainfile(filepath=str(File.absolute())+'out.blend')
+    if IsNewer(TargetName+'_10.glb',File):
+        bpy.ops.wm.open_mainfile(filepath=str(File.absolute()))
+        for collection in bpy.data.collections:
+            collection.hide_viewport = collection.name != Object
+            if collection.name == Object:
+                #print(collection.name)
+                target_obj = collection
+                for obj in collection.all_objects:
+                    #print("obj: ", obj.name)
+                    target_obj = obj
+        if 10 in lod:
+            bpy.ops.export_scene.gltf(filepath=TargetName+'_10.glb',use_visible=True,export_cameras=False,export_apply=True,**kwargs)
+        if 0 in lod\
+        and (IsNewer(TargetName+'_0.glb',File)):
+            GenerateLOD0Object(target_obj,TargetName,lod_ligthing=lod_ligthing)
+        #bpy.ops.wm.save_mainfile(filepath=str(File.absolute())+'out.blend')
     
 def GenerateLOD0Object(target_obj,TargetName,Resolution=400,Blending='CLIP',lod_ligthing=50):
     # remove default light    
