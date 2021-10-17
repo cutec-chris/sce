@@ -27,6 +27,14 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Test",
+            "type": "python",
+            "request": "launch",
+            "program": "server/server.py",
+            "args": ["ws://localhost:8080","test"],
+            "console": "integratedTerminal"
+        },
+        {
             "type": "pwa-chrome",
             "request": "launch",
             "name": "Launch Chrome against localhost",

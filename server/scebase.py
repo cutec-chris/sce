@@ -17,7 +17,7 @@ class GameObject:
                 aJson = f.read()
                 if aJson != '':
                     self.fromJson(aJson)
-    def GetModel(self,lod=10)
+    def GetModel(self,lod=10):
         return self.blueprintPath / ('%s_%d.glb' % (str(self.__name__),lod))
 class  DynamicObject(GameObject):
     def __getstate__(self):
