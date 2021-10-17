@@ -10,11 +10,13 @@ def ExportObject(File,Object,TargetName,lod=[10],lod_ligthing=50,**kwargs):
         bpy.ops.wm.open_mainfile(filepath=str(File.absolute()))
         for collection in bpy.data.collections:
             collection.hide_viewport = collection.name != Object
+            collection.hide_select = collection.name != Object
+            collection.hide_render = collection.name != Object
             if collection.name == Object:
-                #print(collection.name)
+                print(collection.name)
                 target_obj = collection
                 for obj in collection.all_objects:
-                    #print("obj: ", obj.name)
+                    print("     obj: ", obj.name)
                     target_obj = obj
         if 10 in lod:
             bpy.ops.export_scene.gltf(filepath=TargetName+'_10.glb',use_visible=True,export_cameras=False,export_apply=True,**kwargs)
@@ -117,3 +119,4 @@ def GenerateLOD0Object(target_obj,TargetName,Resolution=400,Blending='CLIP',lod_
 
     #https://blender.stackexchange.com/questions/130404/script-to-render-one-object-from-different-angles
     #https://blender.stackexchange.com/questions/128185/check-if-the-whole-plane-is-being-on-a-orthographic-camera-render-or-get-a-prop
+
