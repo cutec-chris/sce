@@ -4,3 +4,6 @@
 [submodule "contents/PrimaEarth"]
 	path = contents/PrimalEarth
 	url = https://github.com/cutec-chris/sce-PrimalEarth
+[submodule "client/base"]
+	path = client/base
+	url = https://github.com/cutec-chris/pweb-base.git
