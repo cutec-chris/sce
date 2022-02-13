@@ -1,8 +1,16 @@
+<!DOCTYPE html>
 <head>
     <title>Second Chance Evolution</title>
     <script src="base/index.mjs" type="module"></script>
     <script src="game.mjs" type="module"></script>
 </head>
 <body 3d>
-
+    <script type="module">
+        document.addEventListener('promet-loaded',function(){
+            let box = document.createElement('a-entity');
+            document.Scene.appendChild(box);
+            box.setAttribute('geometry','primitive: box; width: 3');
+            box.setAttribute('position','0 0 -5');
+        })
+    </script>
 </body>
