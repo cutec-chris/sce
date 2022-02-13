@@ -9,8 +9,9 @@
         document.addEventListener('promet-loaded',function(){
             let box = document.createElement('a-entity');
             document.Scene.appendChild(box);
-            box.setAttribute('geometry','primitive: box; width: 3');
-            box.setAttribute('position','0 0 -5');
+            box.setAttribute('geometry','primitive: box; width: 1');
+            box.setAttribute('material','color: red');
+            box.setAttribute('position','0 1 -5');
         })
     </script>
 </body>
