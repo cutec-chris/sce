@@ -6,6 +6,7 @@ def IsNewer(File1,File2):
         return True
 def ExportObject(File,Object,TargetName,lod=[10],lod_ligthing=50,**kwargs):
     File = pathlib.Path(File)
+    print(str(File.absolute()))
     if IsNewer(TargetName+'_10.glb',File):
         bpy.ops.wm.open_mainfile(filepath=str(File.absolute()))
         for collection in bpy.data.collections:
