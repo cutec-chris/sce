@@ -2,15 +2,15 @@
 <head>
     <title>Second Chance Evolution</title>
     <script src="base/index.mjs" type="module"></script>
-    <script src="game.mjs" type="module"></script>
 </head>
 <body 3d>
     <script type="module">
+        import * as game from './game.mjs'
         document.addEventListener('promet-loaded',function(){
-            let box = document.createElement('a-entity');
-            document.Scene.appendChild(box);
-            box.setAttribute('sce-item','asset','PrimalEarth/Plants/Prayer');
-            box.setAttribute('position','0 0 -10');
+            let plant1 = game.staticAsset('PrimalEarth/Plants/Prayer',{
+                position: '0 0 -1'
+            })
+            document.Scene.appendChild(plant1);
         })
     </script>
 </body>

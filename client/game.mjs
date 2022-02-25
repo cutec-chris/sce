@@ -1,3 +1,11 @@
+export function staticAsset(aPath,aProps) {
+    let obj = document.createElement('a-entity');
+    obj.setAttribute('sce-item','asset',aPath);
+    for (var prop in aProps) {
+        obj.setAttribute(prop,aProps[prop]);
+    }
+    return obj;
+}
 document.addEventListener('promet-before-loaded',function(){
     AFRAME.registerComponent('sce-item', {
         dependencies: ['gltf-model'],
